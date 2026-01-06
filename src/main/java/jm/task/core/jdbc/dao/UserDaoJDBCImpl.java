@@ -3,10 +3,7 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,13 +12,16 @@ public class UserDaoJDBCImpl implements UserDao {
 
     }
 
-    public void createUsersTable() {
-        Connection connection = Util.getConnection();
+    Connection connection = Util.getConnection();
 
-        String sqlCommand = "CREATE TABLE IF NOT EXISTS task (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(20), lastName VARCHAR(20), age TINYINT)";
+    public void createUsersTable() {
+        String sqlCommand = "CREATE TABLE IF NOT EXISTS task" +
+                "(id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(20)," +
+                "lastName VARCHAR(20), age TINYINT)";
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sqlCommand);
+
             System.out.println("Таблица создана");
         } catch (SQLException ex) {
             System.out.println("Ошибка создания");
@@ -30,12 +30,11 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        Connection connection = Util.getConnection();
-
         String sqlCommand = "DROP TABLE IF EXISTS task";
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sqlCommand);
+
             System.out.println("Таблица удалена");
         } catch (SQLException ex) {
             System.out.println("Ошибка удаления");
@@ -44,13 +43,16 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        Connection connection = Util.getConnection();
+        try (PreparedStatement preparedStatement =
+                     connection.prepareStatement(
+                             "INSERT INTO task (name, lastName, age) VALUES (?, ?, ?)")) {
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setByte(3, age);
+            preparedStatement.executeUpdate();
 
-        String sqlCommand = "INSERT INTO task (name, lastName, age) VALUES ('" + name + "', '"+ lastName + "', " + age + ")";
-
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sqlCommand);
             System.out.println("User с именем - " + name + " добавлен в базу данных");
+
         } catch (SQLException ex) {
             System.out.println("Ошибка добавления");
             System.out.println(ex);
@@ -58,12 +60,11 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        Connection connection = Util.getConnection();
+        try (PreparedStatement preparedStatement =
+                     connection.prepareStatement("DELETE FROM task WHERE id =" + id)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
 
-        String sqlCommand = "DELETE FROM task WHERE id =" + id;
-
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(sqlCommand);
             System.out.println("User с id: " + id + " удален из базы данных");
         } catch (SQLException ex) {
             System.out.println("Ошибка удаления");
@@ -74,8 +75,6 @@ public class UserDaoJDBCImpl implements UserDao {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
-        Connection connection = Util.getConnection();
-
         String sqlCommand = "SELECT * FROM task";
 
         try (Statement statement = connection.createStatement()) {
@@ -83,6 +82,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
             while (resultSet.next()) {
                 User user = new User();
+
                 user.setId(resultSet.getLong("id"));
                 user.setName(resultSet.getString("name"));
                 user.setLastName(resultSet.getString("lastName"));
@@ -98,8 +98,6 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        Connection connection = Util.getConnection();
-
         String sqlCommand = "DELETE FROM task";
 
         try (Statement statement = connection.createStatement()) {
