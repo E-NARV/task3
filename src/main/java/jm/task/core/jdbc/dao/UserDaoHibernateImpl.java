@@ -19,9 +19,9 @@ public class UserDaoHibernateImpl implements UserDao {
     public void createUsersTable() {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            Query query = session.createNativeQuery("CREATE TABLE IF NOT EXISTS task " +
-                    "(id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(20), " +
-                    "lastName VARCHAR(20), age TINYINT)");
+            Query query = session.createNativeQuery("CREATE TABLE IF NOT EXISTS users " +
+                    "(id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), " +
+                    "lastName VARCHAR(50), age TINYINT)");
             query.executeUpdate();
             session.getTransaction().commit();
 
@@ -29,7 +29,6 @@ public class UserDaoHibernateImpl implements UserDao {
         } catch (Exception ex) {
             System.out.println("Ошибка создания");
             System.out.println(ex);
-            // if (session.getTransaction() != null) session.getTransaction().rollback();
         }
     }
 
@@ -37,7 +36,7 @@ public class UserDaoHibernateImpl implements UserDao {
     public void dropUsersTable() {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            Query query = session.createNativeQuery("DROP TABLE IF EXISTS task");
+            Query query = session.createNativeQuery("DROP TABLE IF EXISTS users");
             query.executeUpdate();
             session.getTransaction().commit();
 

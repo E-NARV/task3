@@ -2,7 +2,6 @@ package jm.task.core.jdbc.service;
 
 import jm.task.core.jdbc.dao.UserDao;
 import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
-import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
 import jm.task.core.jdbc.model.User;
 
 import java.util.List;
@@ -12,7 +11,6 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao;
 
     public UserServiceImpl() {
-        //this.userDao = new UserDaoJDBCImpl();
         this.userDao = new UserDaoHibernateImpl();
     }
 
@@ -33,8 +31,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<User> getAllUsers() {
-        List<User> users = userDao.getAllUsers();
-        return users;
+        return userDao.getAllUsers();
     }
 
     public void cleanUsersTable() {
